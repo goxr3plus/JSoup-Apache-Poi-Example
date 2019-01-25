@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.EncryptedDocumentException;
@@ -36,7 +38,6 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimaps;
 
 import dnl.utils.text.table.TextTable;
-import main.java.project.sonarparser.application.measures.comporator.NameComporator;
 
 public class Main {
 
@@ -131,7 +132,7 @@ public class Main {
 	int row = 0;
 	counter = 0;
 
-	Collections.sort(projects, new NameComporator());
+	// Collections.sort(projects, new NameComporator());
 	for (Project project : projects) {
 	    items[row][counter] = String.valueOf(row);
 	    items[row][++counter] = project.getName();
@@ -156,7 +157,10 @@ public class Main {
 	System.err.println("Creating excel");
 
 	/* Read previous week report */
-	List<String> previousWeekProjects = readPreviousWeekReport();
+	Map<String, String> previousWeekProjects = readPreviousWeekReport();
+	MapUtils.debugPrint(System.err, "myMap", previousWeekProjects);
+	// System.out.println(previousWeekProjects.size());
+
 	// System.err.println(previousWeekProjects);
 
 	/* Create XSSFWorkbook & XSSFSheet */
@@ -171,8 +175,32 @@ public class Main {
 
 	/* Iterate the data */
 	int[] rowNum = { 0 };
+
+	/* Create row 0-Descriptions */
+	Row row0 = sheet.createRow(rowNum[0]);
+	CellStyle cellStyle0 = row0.getSheet().getWorkbook().createCellStyle();
+	cellStyle0.setAlignment(HorizontalAlignment.CENTER);
+	for (int i = 0; i <= 4; i++) {
+
+	    /* Create Row Count */
+	    Cell cell = row0.createCell(i);
+	    cell.setCellStyle(cellStyle0);
+	    if (i == 0)
+		cell.setCellValue("NO");
+	    else if (i == 1)
+		cell.setCellValue("Category");
+	    else if (i == 2)
+		cell.setCellValue("Component");
+	    else if (i == 3)
+		cell.setCellValue("Last Week");
+	    else if (i == 4)
+		cell.setCellValue("This week");
+
+	}
+
 	Arrays.stream(StaticStaff.datatypes).forEach(datatype -> {
-	    Row row = sheet.createRow(rowNum[0]++);
+	    rowNum[0]++;
+	    Row row = sheet.createRow(rowNum[0]);
 
 	    /* Align all cells to left */
 	    CellStyle cellStyle = row.getSheet().getWorkbook().createCellStyle();
@@ -206,7 +234,8 @@ public class Main {
 	    /* Add Previous Week Coverage */
 	    Cell cell4 = row.createCell(3);
 	    cell4.setCellStyle(cellStyle2);
-	    String prevCov = previousWeekProjects.get(rowNum[0] - 1);
+	    System.err.println(projects.get(rowNum[0] - 1).getName());
+	    String prevCov = previousWeekProjects.get(projects.get(rowNum[0] - 1).getName());
 	    String previousWeekCoverage = prevCov.isEmpty() ? "0.0%" : prevCov;
 	    cell4.setCellValue(previousWeekCoverage);
 
@@ -245,9 +274,9 @@ public class Main {
      * @return A list containing the final column of the previous week report as
      *         Strings
      */
-    private List<String> readPreviousWeekReport() {
+    private Map<String, String> readPreviousWeekReport() {
 
-	List<String> results = new ArrayList<>();
+	Map<String, String> results = new HashMap<>();
 
 	try {
 
@@ -264,13 +293,19 @@ public class Main {
 	    int[] rowCounter = { 0 };
 	    int[] columnNumber = { 0 };
 	    sheet.forEach(row -> {
+		String[] name = { "" };
 		if (rowCounter[0] >= 1)
 		    row.forEach(cell -> {
 
-			/* We need last week report coverage column */
-			if (columnNumber[0] == 4) {
+			/* First find the name */
+			if (columnNumber[0] == 2) {
+			    name[0] = dataFormatter.formatCellValue(cell);
+			    results.put(name[0], "");
+			}
+			/* Then put in the name the coverage too */
+			else if (columnNumber[0] == 4) {
 			    String cellValue = dataFormatter.formatCellValue(cell);
-			    results.add(cellValue);
+			    results.put(name[0], cellValue);
 			}
 			columnNumber[0]++;
 		    });
