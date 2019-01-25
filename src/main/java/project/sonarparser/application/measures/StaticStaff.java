@@ -9,7 +9,8 @@ public class StaticStaff {
 	    "Auditing",
 	    "Lottery Validations",
 	    "Winning Certificates UI",
-	    "Auth UI", "Promotion Engine UI",
+	    "Auth UI",
+	    "Promotion Engine UI",
 	    "ATS Service",
 	    "NAM",
 	    "Alerting",
@@ -28,12 +29,12 @@ public class StaticStaff {
 	    "Fraud UI",
 	    "Lottery Risk Management",
 	    "Terminal Adaptor",
-	    "Accounting", "API Gateway J",
+	    "Accounting",
+	    "API Gateway J",
 	    "Auth",
 	    "Game Scheduler",
 	    "Information Store",
 	    "Fraud", 
-	    "Auditing UI",
 	    "DMS UI",
 	    "Pulse UI",
 	    "DMS", 
@@ -74,7 +75,6 @@ public class StaticStaff {
 		{ "Users Operators ", "DMS UI                 " },
 		{ "Users Operators ", "Pulse UI               " },
 		{ "APIs            ", "DMS                    " },
-		{ "Users Operators ", "Auditing UI            " }
 	     };
 
 }

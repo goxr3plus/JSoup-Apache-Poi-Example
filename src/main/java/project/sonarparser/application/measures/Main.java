@@ -36,6 +36,7 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimaps;
 
 import dnl.utils.text.table.TextTable;
+import main.java.project.sonarparser.application.measures.comporator.NameComporator;
 
 public class Main {
 
@@ -108,16 +109,20 @@ public class Main {
 		.peek(project -> project.setVersion(project.getVersion().replaceAll("\\Q.\\E|LVS_|-|not provided|SNAPSHOT", "").trim()))
 		.collect(Collectors.toList());
 
-	/*
-	 * Create a multimap because some Projects have duplicate name and different
-	 * version
-	 */
+	/* Create a multimap because of multiple projects with same name */
 	final ImmutableListMultimap<String, Project> multiMap = Multimaps.index(projects, Project::getName);
-	int[] r = { 0 };
-	multiMap.keySet().forEach(projectName -> {
+	projects = multiMap.keySet().stream().map(projectName -> {
 	    List<Project> sortedProjects = multiMap.get(projectName).stream().sorted().collect(Collectors.toList());
-	    System.err.println((r[0]++) + " " + sortedProjects);
-	});
+	    return sortedProjects.get(0);
+	}).collect(Collectors.toList());
+
+	/* Add projects that never had coverage */
+	List<String> projectNames = projects.stream().map(Project::getName).collect(Collectors.toList());
+	for (String projectName : StaticStaff.ignoreList) {
+	    if (!projectNames.contains(projectName)) {
+		projects.add(new Project(projectName, "not provided", "DUCK", "DUCK"));
+	    }
+	}
 
 	/* Prepare the printing table */
 	String[] columnNames = { "Counting", "Name", "Coverage", "Last Updated", "Version" };
@@ -126,6 +131,7 @@ public class Main {
 	int row = 0;
 	counter = 0;
 
+	Collections.sort(projects, new NameComporator());
 	for (Project project : projects) {
 	    items[row][counter] = String.valueOf(row);
 	    items[row][++counter] = project.getName();
@@ -198,15 +204,17 @@ public class Main {
 	    cellStyle2.setFont(font);
 
 	    /* Add Previous Week Coverage */
-//	    Cell cell4 = row.createCell(4);
-//	    cell4.setCellStyle(cellStyle2);
-//	    String previousWeekCoverage = previousWeekProjects.get(rowNum[0]).isEmpty() ? "0.0%" : previousWeekProjects.get(rowNum[0]);
-//	    cell4.setCellValue(previousWeekCoverage);
+	    Cell cell4 = row.createCell(3);
+	    cell4.setCellStyle(cellStyle2);
+	    String prevCov = previousWeekProjects.get(rowNum[0] - 1);
+	    String previousWeekCoverage = prevCov.isEmpty() ? "0.0%" : prevCov;
+	    cell4.setCellValue(previousWeekCoverage);
 
 	    /* Add Current Week Coverage */
-	    Cell cell5 = row.createCell(5);
+	    Cell cell5 = row.createCell(4);
 	    cell5.setCellStyle(cellStyle2);
-	    String coverage = projects.get(rowNum[0]).getCoverage().isEmpty() ? "0.0%" : projects.get(rowNum[0]).getCoverage();
+	    String cov = projects.get(rowNum[0] - 1).getCoverage();
+	    String coverage = cov.isEmpty() ? "0.0%" : cov;
 	    cell5.setCellValue(coverage);
 	});
 
@@ -214,8 +222,8 @@ public class Main {
 	for (int i = 0; i < 7; i++)
 	    sheet.autoSizeColumn(i);
 	sheet.setColumnWidth(0, 1500);
-	sheet.setColumnWidth(3, 5500);
-	sheet.setColumnWidth(4, 5500);
+	sheet.setColumnWidth(3, 3500);
+	sheet.setColumnWidth(4, 3500);
 
 	/* Create excel file */
 	File file = getSonarQubeReport(LocalDate.now());

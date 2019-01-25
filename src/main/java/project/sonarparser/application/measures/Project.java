@@ -1,5 +1,8 @@
 package main.java.project.sonarparser.application.measures;
 
+import java.text.DateFormatSymbols;
+import java.time.LocalDate;
+
 public class Project implements Comparable<Project> {
 
     private String name;
@@ -9,6 +12,17 @@ public class Project implements Comparable<Project> {
 
     public Project() {
     }
+    
+    
+    public Project(final String name, final String version, final String coverage, final String lastAnalysis) {
+	super();
+	this.name = name;
+	this.version = version;
+	this.coverage = coverage;
+	this.lastAnalysis = lastAnalysis;
+    }
+
+
 
     public String getName() {
 	return name;
@@ -49,10 +63,36 @@ public class Project implements Comparable<Project> {
 
     @Override
     public int compareTo(final Project project2) {
-	if (project2.getCoverage() == null && getCoverage() != null)
-	    return 1;
-	if (!project2.getVersion().isEmpty() && !getVersion().isEmpty())
-	    return Integer.valueOf(project2.getVersion()).compareTo(Integer.valueOf(getVersion()));
+	return project2.getLastAnalysisLocalDate().compareTo(getLastAnalysisLocalDate());
+    }
+
+    public LocalDate getLastAnalysisLocalDate() {
+
+	if (lastAnalysis.contains(":"))
+	    return LocalDate.now();
+
+	String[] splitter = lastAnalysis.split(" ");
+
+	int year = Integer.parseInt(splitter[2]);
+	int month = getMonthInt(splitter[0]);
+	int dayOfMonth = Integer.parseInt(splitter[1]);
+
+	return LocalDate.of(year, month, dayOfMonth);
+    }
+
+    
+    /** Return month as int from a String like {Sept,Oct,Jan,etc}
+     * @param monthFormalabbreviation
+     * @return
+     */
+    private int getMonthInt(final String monthFormalabbreviation) {
+	String[] shortMonths = new DateFormatSymbols().getShortMonths();
+
+	for (int i = 0; i < (shortMonths.length - 1); i++) {
+	    String shortMonth = shortMonths[i];
+	    if (shortMonth.equals(monthFormalabbreviation))
+		return i + 1;
+	}
 	return 0;
     }
 
