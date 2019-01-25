@@ -132,7 +132,6 @@ public class Main {
 	int row = 0;
 	counter = 0;
 
-	// Collections.sort(projects, new NameComporator());
 	for (Project project : projects) {
 	    items[row][counter] = String.valueOf(row);
 	    items[row][++counter] = project.getName();
@@ -159,19 +158,47 @@ public class Main {
 	/* Read previous week report */
 	Map<String, String> previousWeekProjects = readPreviousWeekReport();
 	MapUtils.debugPrint(System.err, "myMap", previousWeekProjects);
-	// System.out.println(previousWeekProjects.size());
-
-	// System.err.println(previousWeekProjects);
 
 	/* Create XSSFWorkbook & XSSFSheet */
 	XSSFWorkbook workbook = new XSSFWorkbook();
 	XSSFSheet sheet = workbook.createSheet("Datatypes in Java");
 
-	/* Create bold font */
+	// --------------- Create Styles -----------------------//
+
+	/* Create Default Style */
 	XSSFFont font = workbook.createFont();
 	font.setFontHeightInPoints((short) 10);
 	font.setFontName("Arial");
 	font.setBold(true);
+
+	CellStyle defaultStyle = workbook.createCellStyle();
+	defaultStyle.setAlignment(HorizontalAlignment.LEFT);
+
+	/* Create RED Coverage Style */
+	XSSFFont redFont = workbook.createFont();
+	redFont.setFontHeightInPoints((short) 10);
+	redFont.setFontName("Arial");
+	redFont.setBold(true);
+
+	CellStyle redStyle = workbook.createCellStyle();
+	redStyle.setAlignment(HorizontalAlignment.RIGHT);
+	redStyle.setFillForegroundColor(IndexedColors.DARK_RED.getIndex());
+	redStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	redStyle.setFont(redFont);
+	redFont.setColor(HSSFColor.WHITE.index);
+
+	/* Create GREEN Coverage Style */
+	XSSFFont greenFont = workbook.createFont();
+	greenFont.setFontHeightInPoints((short) 10);
+	greenFont.setFontName("Arial");
+	greenFont.setBold(true);
+
+	CellStyle greenStyle = workbook.createCellStyle();
+	greenStyle.setAlignment(HorizontalAlignment.RIGHT);
+	greenStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+	greenStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	greenStyle.setFont(greenFont);
+	greenFont.setColor(HSSFColor.BLACK.index);
 
 	/* Iterate the data */
 	int[] rowNum = { 0 };
@@ -202,19 +229,16 @@ public class Main {
 	    rowNum[0]++;
 	    Row row = sheet.createRow(rowNum[0]);
 
-	    /* Align all cells to left */
-	    CellStyle cellStyle = row.getSheet().getWorkbook().createCellStyle();
-	    cellStyle.setAlignment(HorizontalAlignment.LEFT);
 	    int[] colNum = { 0 };
 
 	    /* Create Row Count */
 	    Cell cell1 = row.createCell(colNum[0]++);
-	    cell1.setCellStyle(cellStyle);
+	    cell1.setCellStyle(defaultStyle);
 	    cell1.setCellValue(rowNum[0]);
 
 	    Arrays.stream(datatype).forEach(field -> {
 		Cell cell = row.createCell(colNum[0]++);
-		cell.setCellStyle(cellStyle);
+		cell.setCellStyle(defaultStyle);
 		if (field instanceof String) {
 		    cell.setCellValue((String) field);
 		} else if (field instanceof Integer) {
@@ -222,28 +246,24 @@ public class Main {
 		}
 	    });
 
-	    /* Create Coverage Style */
-	    CellStyle cellStyle2 = row.getSheet().getWorkbook().createCellStyle();
-	    cellStyle2.setAlignment(HorizontalAlignment.RIGHT);
-	    cellStyle2.setFillForegroundColor(IndexedColors.WHITE.getIndex());
-	    cellStyle2.setFillBackgroundColor(IndexedColors.RED.getIndex());
-	    cellStyle2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-	    font.setColor(HSSFColor.BLACK.index);
-	    cellStyle2.setFont(font);
+	    // --------------- Add Coverages -----------------------//
 
 	    /* Add Previous Week Coverage */
 	    Cell cell4 = row.createCell(3);
-	    cell4.setCellStyle(cellStyle2);
+	    cell4.setCellStyle(defaultStyle);
 	    System.err.println(projects.get(rowNum[0] - 1).getName());
 	    String prevCov = previousWeekProjects.get(projects.get(rowNum[0] - 1).getName());
-	    String previousWeekCoverage = prevCov.isEmpty() ? "0.0%" : prevCov;
+	    String previousWeekCoverage = prevCov.isEmpty() ? "0.00%" : prevCov;
 	    cell4.setCellValue(previousWeekCoverage);
 
 	    /* Add Current Week Coverage */
 	    Cell cell5 = row.createCell(4);
-	    cell5.setCellStyle(cellStyle2);
+	    if (rowNum[0] % 2 == 0)
+		cell5.setCellStyle(redStyle);
+	    else
+		cell5.setCellStyle(greenStyle);
 	    String cov = projects.get(rowNum[0] - 1).getCoverage();
-	    String coverage = cov.isEmpty() ? "0.0%" : cov;
+	    String coverage = cov.isEmpty() ? "0.00%" : cov;
 	    cell5.setCellValue(coverage);
 	});
 
