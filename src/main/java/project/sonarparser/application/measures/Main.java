@@ -169,13 +169,23 @@ public class Main {
 
 	CellStyle defaultStyle = workbook.createCellStyle();
 	defaultStyle.setAlignment(HorizontalAlignment.LEFT);
+	defaultStyle.setFont(font);
+
+	XSSFFont font2 = workbook.createFont();
+	font2.setFontHeightInPoints((short) 10);
+	font2.setFontName("Arial");
+	font2.setBold(true);
 
 	CellStyle defaultStyleRight = workbook.createCellStyle();
-	defaultStyle.setAlignment(HorizontalAlignment.RIGHT);
+	defaultStyleRight.setFillForegroundColor(IndexedColors.WHITE1.getIndex());
+	defaultStyleRight.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	defaultStyleRight.setAlignment(HorizontalAlignment.RIGHT);
+	defaultStyleRight.setFont(font2);
 
 	/* Create RED Coverage Style */
 	XSSFFont redFont = workbook.createFont();
 	redFont.setFontHeightInPoints((short) 10);
+	redFont.setColor(HSSFColor.WHITE.index);
 	redFont.setFontName("Arial");
 	redFont.setBold(true);
 
@@ -184,20 +194,19 @@ public class Main {
 	redStyle.setFillForegroundColor(IndexedColors.DARK_RED.getIndex());
 	redStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	redStyle.setFont(redFont);
-	redFont.setColor(HSSFColor.WHITE.index);
 
 	/* Create GREEN Coverage Style */
 	XSSFFont greenFont = workbook.createFont();
 	greenFont.setFontHeightInPoints((short) 10);
+	greenFont.setColor(HSSFColor.BLACK.index);
 	greenFont.setFontName("Arial");
 	greenFont.setBold(true);
 
 	CellStyle greenStyle = workbook.createCellStyle();
 	greenStyle.setAlignment(HorizontalAlignment.RIGHT);
-	greenStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+	greenStyle.setFillForegroundColor(IndexedColors.BRIGHT_GREEN.getIndex());
 	greenStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	greenStyle.setFont(greenFont);
-	greenFont.setColor(HSSFColor.BLACK.index);
 
 	/* Iterate the data */
 	int[] rowNum = { 0 };
@@ -253,8 +262,7 @@ public class Main {
 		    .get();
 	    Cell cell4 = row.createCell(3);
 	    cell4.setCellStyle(defaultStyleRight);
-	    String previousWeekCoverage = previousWeekProject.getCoverage().isEmpty() ? "0.00%" : previousWeekProject.getCoverage();
-	    cell4.setCellValue(previousWeekCoverage);
+	    cell4.setCellValue(previousWeekProject.getCoverage());
 
 	    /* Add Current Week Coverage */
 	    Cell cell5 = row.createCell(4);
@@ -264,10 +272,9 @@ public class Main {
 		cell5.setCellStyle(redStyle);
 	    else if (coverageThisWeek > coveragePreviousWeek)
 		cell5.setCellStyle(greenStyle);
-
-	    String cov = projects.get(rowNum[0] - 1).getCoverage();
-	    String coverage = cov.isEmpty() ? "0.00%" : cov;
-	    cell5.setCellValue(coverage);
+	    else
+		cell5.setCellStyle(defaultStyleRight);
+	    cell5.setCellValue(thisWeekProject.getCoverage());
 	});
 
 	// Auto size column widths
