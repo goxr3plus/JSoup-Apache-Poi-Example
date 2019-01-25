@@ -10,10 +10,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jsoup.Jsoup;
@@ -115,20 +119,25 @@ public class Main {
 	tt.printTable();
 
 	/* Export to Excel File */
-	exportExcel();
+	exportExcel(projects);
 
     }
 
-    public void exportExcel() throws IOException {
+    public void exportExcel(final List<Project> projects) throws IOException {
 	System.err.println("Creating excel");
 
 	/* Create XSSFWorkbook & XSSFSheet */
 	XSSFWorkbook workbook = new XSSFWorkbook();
 	XSSFSheet sheet = workbook.createSheet("Datatypes in Java");
 
-	int[] rowNum = { 0 };
+	/* Create bold font */
+	XSSFFont font = workbook.createFont();
+	font.setFontHeightInPoints((short) 10);
+	font.setFontName("Arial");
+	font.setBold(true);
 
 	/* Iterate the data */
+	int[] rowNum = { 0 };
 	Arrays.stream(StaticStaff.datatypes).forEach(datatype -> {
 	    Row row = sheet.createRow(rowNum[0]++);
 
@@ -151,12 +160,28 @@ public class Main {
 		    cell.setCellValue((Integer) field);
 		}
 	    });
+
+	    /* Create Coverage Style */
+	    CellStyle cellStyle2 = row.getSheet().getWorkbook().createCellStyle();
+	    cellStyle2.setAlignment(HorizontalAlignment.RIGHT);
+	    cellStyle2.setFillForegroundColor(IndexedColors.SKY_BLUE.getIndex());
+	    cellStyle2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    font.setColor(HSSFColor.WHITE.index);
+	    cellStyle2.setFont(font);
+
+	    /* Add Coverage */
+	    Cell cell5 = row.createCell(4);
+	    cell5.setCellStyle(cellStyle2);
+	    String coverage = projects.get(rowNum[0]).getCoverage().isEmpty() ? "0.0%" : projects.get(rowNum[0]).getCoverage();
+	    cell5.setCellValue(coverage);
 	});
 
 	// Auto size column widths
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 7; i++)
 	    sheet.autoSizeColumn(i);
 	sheet.setColumnWidth(0, 1500);
+	sheet.setColumnWidth(3, 5500);
+	sheet.setColumnWidth(4, 5500);
 
 	/* Create excel file */
 	File file = new File("file.xlsx");
