@@ -6,12 +6,9 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.EncryptedDocumentException;
@@ -121,7 +118,7 @@ public class Main {
 	List<String> projectNames = projects.stream().map(Project::getName).collect(Collectors.toList());
 	for (String projectName : StaticStaff.ignoreList) {
 	    if (!projectNames.contains(projectName)) {
-		projects.add(new Project(projectName, "not provided", "DUCK", "DUCK"));
+		projects.add(new Project(projectName, "not provided", "No Coverage", ""));
 	    }
 	}
 
@@ -156,8 +153,7 @@ public class Main {
 	System.err.println("Creating excel");
 
 	/* Read previous week report */
-	Map<String, String> previousWeekProjects = readPreviousWeekReport();
-	MapUtils.debugPrint(System.err, "myMap", previousWeekProjects);
+	List<Project> previousWeekProjects = readPreviousWeekReport();
 
 	/* Create XSSFWorkbook & XSSFSheet */
 	XSSFWorkbook workbook = new XSSFWorkbook();
@@ -173,6 +169,9 @@ public class Main {
 
 	CellStyle defaultStyle = workbook.createCellStyle();
 	defaultStyle.setAlignment(HorizontalAlignment.LEFT);
+
+	CellStyle defaultStyleRight = workbook.createCellStyle();
+	defaultStyle.setAlignment(HorizontalAlignment.RIGHT);
 
 	/* Create RED Coverage Style */
 	XSSFFont redFont = workbook.createFont();
@@ -246,22 +245,26 @@ public class Main {
 		}
 	    });
 
-	    // --------------- Add Coverages -----------------------//
+	    // --------------- Add Coverage -----------------------//
 
 	    /* Add Previous Week Coverage */
+	    Project thisWeekProject = projects.get(rowNum[0] - 1);
+	    Project previousWeekProject = previousWeekProjects.stream().filter(project -> project.getName().equals(thisWeekProject.getName())).findFirst()
+		    .get();
 	    Cell cell4 = row.createCell(3);
-	    cell4.setCellStyle(defaultStyle);
-	    System.err.println(projects.get(rowNum[0] - 1).getName());
-	    String prevCov = previousWeekProjects.get(projects.get(rowNum[0] - 1).getName());
-	    String previousWeekCoverage = prevCov.isEmpty() ? "0.00%" : prevCov;
+	    cell4.setCellStyle(defaultStyleRight);
+	    String previousWeekCoverage = previousWeekProject.getCoverage().isEmpty() ? "0.00%" : previousWeekProject.getCoverage();
 	    cell4.setCellValue(previousWeekCoverage);
 
 	    /* Add Current Week Coverage */
 	    Cell cell5 = row.createCell(4);
-	    if (rowNum[0] % 2 == 0)
+	    Double coveragePreviousWeek = previousWeekProject.getCoverageAsDouble();
+	    Double coverageThisWeek = thisWeekProject.getCoverageAsDouble();
+	    if (coveragePreviousWeek > coverageThisWeek)
 		cell5.setCellStyle(redStyle);
-	    else
+	    else if (coverageThisWeek > coveragePreviousWeek)
 		cell5.setCellStyle(greenStyle);
+
 	    String cov = projects.get(rowNum[0] - 1).getCoverage();
 	    String coverage = cov.isEmpty() ? "0.00%" : cov;
 	    cell5.setCellValue(coverage);
@@ -294,9 +297,9 @@ public class Main {
      * @return A list containing the final column of the previous week report as
      *         Strings
      */
-    private Map<String, String> readPreviousWeekReport() {
+    private List<Project> readPreviousWeekReport() {
 
-	Map<String, String> results = new HashMap<>();
+	List<Project> results = new ArrayList<>();
 
 	try {
 
@@ -314,21 +317,24 @@ public class Main {
 	    int[] columnNumber = { 0 };
 	    sheet.forEach(row -> {
 		String[] name = { "" };
-		if (rowCounter[0] >= 1)
+		String[] coverage = { "" };
+		if (rowCounter[0] >= 1) {
 		    row.forEach(cell -> {
 
 			/* First find the name */
 			if (columnNumber[0] == 2) {
 			    name[0] = dataFormatter.formatCellValue(cell);
-			    results.put(name[0], "");
 			}
 			/* Then put in the name the coverage too */
 			else if (columnNumber[0] == 4) {
-			    String cellValue = dataFormatter.formatCellValue(cell);
-			    results.put(name[0], cellValue);
+			    coverage[0] = dataFormatter.formatCellValue(cell);
 			}
 			columnNumber[0]++;
 		    });
+
+		    results.add(new Project(name[0], "", coverage[0], ""));
+		}
+
 		rowCounter[0]++;
 		columnNumber[0] = 0;
 	    });

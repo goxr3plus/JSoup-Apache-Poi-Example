@@ -1,6 +1,8 @@
 package main.java.project.sonarparser.application.measures;
 
 import java.text.DateFormatSymbols;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 
 public class Project implements Comparable<Project> {
@@ -12,8 +14,7 @@ public class Project implements Comparable<Project> {
 
     public Project() {
     }
-    
-    
+
     public Project(final String name, final String version, final String coverage, final String lastAnalysis) {
 	super();
 	this.name = name;
@@ -21,8 +22,6 @@ public class Project implements Comparable<Project> {
 	this.coverage = coverage;
 	this.lastAnalysis = lastAnalysis;
     }
-
-
 
     public String getName() {
 	return name;
@@ -41,7 +40,12 @@ public class Project implements Comparable<Project> {
     }
 
     public String getCoverage() {
-	return coverage;
+	if (coverage.contains("No Coverage"))
+	    return coverage;
+	else {
+	    NumberFormat formatter = new DecimalFormat("#0.00");
+	    return formatter.format(getCoverageAsDouble()).concat("%");
+	}
     }
 
     public void setCoverage(final String coverage) {
@@ -56,14 +60,10 @@ public class Project implements Comparable<Project> {
 	this.lastAnalysis = lastAnalysis;
     }
 
-    @Override
-    public String toString() {
-	return "Project [name=" + name + ", version=" + version + ", coverage=" + coverage + ", lastAnalysis=" + lastAnalysis + "]";
-    }
-
-    @Override
-    public int compareTo(final Project project2) {
-	return project2.getLastAnalysisLocalDate().compareTo(getLastAnalysisLocalDate());
+    public Double getCoverageAsDouble() {
+	if (coverage != null && !coverage.isEmpty() && !coverage.equals("") && !coverage.equals("No Coverage"))
+	    return Double.valueOf(coverage.replace("%", ""));
+	return 0.00;
     }
 
     public LocalDate getLastAnalysisLocalDate() {
@@ -80,8 +80,9 @@ public class Project implements Comparable<Project> {
 	return LocalDate.of(year, month, dayOfMonth);
     }
 
-    
-    /** Return month as int from a String like {Sept,Oct,Jan,etc}
+    /**
+     * Return month as int from a String like {Sept,Oct,Jan,etc}
+     * 
      * @param monthFormalabbreviation
      * @return
      */
@@ -94,6 +95,16 @@ public class Project implements Comparable<Project> {
 		return i + 1;
 	}
 	return 0;
+    }
+
+    @Override
+    public String toString() {
+	return "Project [name=" + name + ", version=" + version + ", coverage=" + coverage + ", lastAnalysis=" + lastAnalysis + "]";
+    }
+
+    @Override
+    public int compareTo(final Project project2) {
+	return project2.getLastAnalysisLocalDate().compareTo(getLastAnalysisLocalDate());
     }
 
 }
