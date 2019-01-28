@@ -1,4 +1,4 @@
-package main.java.project.sonarparser.application.measures;
+package main.java.com.goxr3plus.sonarparser.model;
 
 import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;

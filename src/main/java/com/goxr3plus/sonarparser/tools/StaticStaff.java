@@ -1,9 +1,38 @@
-package main.java.project.sonarparser.application.measures;
+package main.java.com.goxr3plus.sonarparser.tools;
 
 import java.util.Arrays;
 import java.util.List;
 
+import dnl.utils.text.table.TextTable;
+import main.java.com.goxr3plus.sonarparser.model.Project;
+
 public class StaticStaff {
+    
+    public static void printToConsole(final List<Project> projects) {
+	
+	/* Prepare the printing table */
+	String[] columnNames = { "Counting", "Name", "Coverage", "Last Updated", "Version" };
+	int totalRows = projects.size();
+	String[][] items = new String[totalRows][columnNames.length];
+	int row = 0;
+	int counter = 0;
+	
+	//Create an array to print the results as a table
+	for (Project project : projects) {
+	    items[row][counter] = String.valueOf(row);
+	    items[row][++counter] = project.getName();
+	    items[row][++counter] = project.getCoverage();
+	    items[row][++counter] = project.getLastAnalysis();
+	    items[row][++counter] = project.getVersion();
+
+	    row++;
+	    counter = 0;
+	}
+
+	// Print the results as a table
+	TextTable tt = new TextTable(columnNames, items);
+	tt.printTable();
+    }
 
     public static final List<String> ignoreList = Arrays.asList(
 	    "Auditing",
@@ -76,5 +105,8 @@ public class StaticStaff {
 		{ "Users Operators ", "Pulse UI               " },
 		{ "APIs            ", "DMS                    " },
 	     };
+    
+    
+
 
 }

@@ -1,4 +1,4 @@
-package main.java.project.sonarparser.application.measures;
+package main.java.com.goxr3plus.sonarparser.manager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -7,10 +7,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -27,133 +25,23 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+import org.springframework.stereotype.Component;
 
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.Multimaps;
+import main.java.com.goxr3plus.sonarparser.model.Project;
+import main.java.com.goxr3plus.sonarparser.tools.AbstractManager;
+import main.java.com.goxr3plus.sonarparser.tools.StaticStaff;
 
-import dnl.utils.text.table.TextTable;
-
-public class Main {
-
+@Component
+public class ExcelManager extends AbstractManager{
+    
     private final String basePath = "SonarExcel/";
-    private final LocalDate previousWeekDate = LocalDate.of(2019, 1, 18);
+    
 
-    public Main() {
-
-	File input = new File("SonarQube.html");
-
-	try {
-	    Document doc = Jsoup.parse(input, "UTF-8", "http://example.com/");
-
-	    // Parse the damn html
-	    Element table = doc.getElementById("measures-table").getElementsByTag("tbody").first();
-	    parseTable(table);
-
-	} catch (IOException e) {
-	    e.printStackTrace();
-	}
-    }
-
-    /**
-     * Parse the html table
-     * 
-     * @param table
-     * @throws IOException
-     */
-    public void parseTable(final Element table) throws IOException {
-
-	int counter = 0;
-	List<Project> projects = new ArrayList<>();
-	for (Element element : table.getElementsByTag("tbody").first().getElementsByTag("tr")) {
-	    int skipColumns = 0;
-	    Project project = new Project();
-	    for (Element el : element.getElementsByTag("td")) {
-		String text = el.text().replaceAll("master|develop|L10", "").replace("Java", "J").trim();
-
-		// Skip first two columns
-		if (skipColumns < 1)
-		    ++skipColumns;
-		else {
-		    counter++;
-		    switch (counter) {
-		    case 1:
-			project.setName(StringUtils.capitalize(text));
-			break;
-		    case 2:
-			project.setCoverage(text);
-			break;
-		    case 3:
-			project.setLastAnalysis(text);
-			break;
-		    case 4:
-			project.setVersion(text);
-
-			break;
-		    default:
-		    }
-
-		}
-
-	    }
-	    projects.add(project);
-	    counter = 0;
-	}
-
-	/* Get only the projects we want */
-	projects = projects.stream().filter(project -> StaticStaff.ignoreList.contains(project.getName()))
-		.peek(project -> project.setVersion(project.getVersion().replaceAll("\\Q.\\E|LVS_|-|not provided|SNAPSHOT", "").trim()))
-		.collect(Collectors.toList());
-
-	/* Create a multimap because of multiple projects with same name */
-	final ImmutableListMultimap<String, Project> multiMap = Multimaps.index(projects, Project::getName);
-	projects = multiMap.keySet().stream().map(projectName -> {
-	    List<Project> sortedProjects = multiMap.get(projectName).stream().sorted().collect(Collectors.toList());
-	    return sortedProjects.get(0);
-	}).collect(Collectors.toList());
-
-	/* Add projects that never had coverage */
-	List<String> projectNames = projects.stream().map(Project::getName).collect(Collectors.toList());
-	for (String projectName : StaticStaff.ignoreList) {
-	    if (!projectNames.contains(projectName)) {
-		projects.add(new Project(projectName, "not provided", "No Coverage", ""));
-	    }
-	}
-
-	/* Prepare the printing table */
-	String[] columnNames = { "Counting", "Name", "Coverage", "Last Updated", "Version" };
-	int totalRows = projects.size();
-	String[][] items = new String[totalRows][columnNames.length];
-	int row = 0;
-	counter = 0;
-
-	for (Project project : projects) {
-	    items[row][counter] = String.valueOf(row);
-	    items[row][++counter] = project.getName();
-	    items[row][++counter] = project.getCoverage();
-	    items[row][++counter] = project.getLastAnalysis();
-	    items[row][++counter] = project.getVersion();
-
-	    row++;
-	    counter = 0;
-	}
-
-	// Print the results as a table
-	TextTable tt = new TextTable(columnNames, items);
-	tt.printTable();
-
-	/* Export to Excel File */
-	exportExcel(projects);
-
-    }
-
-    public void exportExcel(final List<Project> projects) throws IOException {
+    public void exportExcel(final List<Project> projects,final LocalDate previousWeekDate) throws IOException {
 	System.err.println("Creating excel");
 
 	/* Read previous week report */
-	List<Project> previousWeekProjects = readPreviousWeekReport();
+	List<Project> previousWeekProjects = readPreviousWeekReport(previousWeekDate);
 
 	/* Create XSSFWorkbook & XSSFSheet */
 	XSSFWorkbook workbook = new XSSFWorkbook();
@@ -298,13 +186,17 @@ public class Main {
 	System.err.println("Excel Created");
     }
 
+    private File getSonarQubeReport(final LocalDate localDate) {
+	return new File(basePath + "SonarQube_" + localDate + ".xlsx");
+    }
+
     /**
      * Extract data from previous week report
      * 
      * @return A list containing the final column of the previous week report as
      *         Strings
      */
-    private List<Project> readPreviousWeekReport() {
+    public List<Project> readPreviousWeekReport(final LocalDate previousWeekDate) {
 
 	List<Project> results = new ArrayList<>();
 
@@ -353,14 +245,6 @@ public class Main {
 	}
 
 	return results;
-    }
-
-    private File getSonarQubeReport(final LocalDate localDate) {
-	return new File(basePath + "SonarQube_" + localDate + ".xlsx");
-    }
-
-    public static void main(final String[] args) {
-	new Main();
     }
 
 }

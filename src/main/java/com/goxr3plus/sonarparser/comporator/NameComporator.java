@@ -1,8 +1,8 @@
-package main.java.project.sonarparser.application.measures.comporator;
+package main.java.com.goxr3plus.sonarparser.comporator;
 
 import java.util.Comparator;
 
-import main.java.project.sonarparser.application.measures.Project;
+import main.java.com.goxr3plus.sonarparser.model.Project;
 
 public class NameComporator implements Comparator<Project> {
 
