@@ -16,15 +16,14 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimaps;
 
+import main.java.com.goxr3plus.sonarparser.application.StaticStaff;
 import main.java.com.goxr3plus.sonarparser.model.Project;
-import main.java.com.goxr3plus.sonarparser.tools.AbstractManager;
-import main.java.com.goxr3plus.sonarparser.tools.StaticStaff;
 
 
 @Component
 public class JSoupParser extends AbstractManager {
 
-    @Value("${files.basePath}")
+    @Value("${files.sonarQubePath}")
     private String sonarQubePath;
 
     /**

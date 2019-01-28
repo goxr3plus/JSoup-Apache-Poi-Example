@@ -1,4 +1,4 @@
-package main.java.com.goxr3plus.sonarparser.tools;
+package main.java.com.goxr3plus.sonarparser.application;
 
 import java.util.Arrays;
 import java.util.List;

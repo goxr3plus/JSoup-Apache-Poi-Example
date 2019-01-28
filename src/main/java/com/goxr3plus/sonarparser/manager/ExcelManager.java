@@ -25,20 +25,37 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import main.java.com.goxr3plus.sonarparser.application.StaticStaff;
 import main.java.com.goxr3plus.sonarparser.model.Project;
-import main.java.com.goxr3plus.sonarparser.tools.AbstractManager;
-import main.java.com.goxr3plus.sonarparser.tools.StaticStaff;
 
 @Component
-public class ExcelManager extends AbstractManager{
-    
-    private final String basePath = "SonarExcel/";
-    
+public class ExcelManager extends AbstractManager {
 
-    public void exportExcel(final List<Project> projects,final LocalDate previousWeekDate) throws IOException {
-	System.err.println("Creating excel");
+    @Value("${files.basePath}")
+    private String basePath;
+
+    private XSSFFont font;
+    private CellStyle defaultStyle;
+    private XSSFFont font2;
+    private CellStyle defaultStyleRight;
+    private XSSFFont redFont;
+    private CellStyle redStyle;
+    private XSSFFont greenFont;
+    private CellStyle greenStyle;
+
+    /**
+     * Get the given projects and create the Excel File
+     * 
+     * @param projects
+     * @param previousWeekDate
+     * @throws IOException
+     */
+    public void exportExcel(final List<Project> projects, final LocalDate previousWeekDate) throws IOException {
+
+	log.info("Entered exportExcel ");
 
 	/* Read previous week report */
 	List<Project> previousWeekProjects = readPreviousWeekReport(previousWeekDate);
@@ -49,52 +66,8 @@ public class ExcelManager extends AbstractManager{
 
 	// --------------- Create Styles -----------------------//
 
-	/* Create Default Style */
-	XSSFFont font = workbook.createFont();
-	font.setFontHeightInPoints((short) 10);
-	font.setFontName("Arial");
-	font.setBold(true);
-
-	CellStyle defaultStyle = workbook.createCellStyle();
-	defaultStyle.setAlignment(HorizontalAlignment.LEFT);
-	defaultStyle.setFont(font);
-
-	XSSFFont font2 = workbook.createFont();
-	font2.setFontHeightInPoints((short) 10);
-	font2.setFontName("Arial");
-	font2.setBold(true);
-
-	CellStyle defaultStyleRight = workbook.createCellStyle();
-	defaultStyleRight.setFillForegroundColor(IndexedColors.WHITE1.getIndex());
-	defaultStyleRight.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-	defaultStyleRight.setAlignment(HorizontalAlignment.RIGHT);
-	defaultStyleRight.setFont(font2);
-
-	/* Create RED Coverage Style */
-	XSSFFont redFont = workbook.createFont();
-	redFont.setFontHeightInPoints((short) 10);
-	redFont.setColor(HSSFColor.WHITE.index);
-	redFont.setFontName("Arial");
-	redFont.setBold(true);
-
-	CellStyle redStyle = workbook.createCellStyle();
-	redStyle.setAlignment(HorizontalAlignment.RIGHT);
-	redStyle.setFillForegroundColor(IndexedColors.DARK_RED.getIndex());
-	redStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-	redStyle.setFont(redFont);
-
-	/* Create GREEN Coverage Style */
-	XSSFFont greenFont = workbook.createFont();
-	greenFont.setFontHeightInPoints((short) 10);
-	greenFont.setColor(HSSFColor.BLACK.index);
-	greenFont.setFontName("Arial");
-	greenFont.setBold(true);
-
-	CellStyle greenStyle = workbook.createCellStyle();
-	greenStyle.setAlignment(HorizontalAlignment.RIGHT);
-	greenStyle.setFillForegroundColor(IndexedColors.BRIGHT_GREEN.getIndex());
-	greenStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-	greenStyle.setFont(greenFont);
+	/* Init Styles */
+	initStyles(workbook);
 
 	/* Iterate the data */
 	int[] rowNum = { 0 };
@@ -174,7 +147,7 @@ public class ExcelManager extends AbstractManager{
 
 	/* Create excel file */
 	File file = getSonarQubeReport(LocalDate.now());
-	System.err.println("File exists ... deleting " + FileUtils.deleteQuietly(file));
+	log.error("File {} exists ... deleting = {}", file.getName(), FileUtils.deleteQuietly(file));
 
 	/* Write excel file */
 	try (FileOutputStream outputStream = new FileOutputStream(file.getAbsolutePath())) {
@@ -183,7 +156,7 @@ public class ExcelManager extends AbstractManager{
 	    ex.printStackTrace();
 	}
 
-	System.err.println("Excel Created");
+	log.info("Exited exportExcel ");
     }
 
     private File getSonarQubeReport(final LocalDate localDate) {
@@ -245,6 +218,53 @@ public class ExcelManager extends AbstractManager{
 	}
 
 	return results;
+    }
+
+    private void initStyles(final XSSFWorkbook workbook) {
+
+	font = workbook.createFont();
+	font.setFontHeightInPoints((short) 10);
+	font.setFontName("Arial");
+	font.setBold(true);
+
+	defaultStyle = workbook.createCellStyle();
+	defaultStyle.setAlignment(HorizontalAlignment.LEFT);
+	defaultStyle.setFont(font);
+
+	font2 = workbook.createFont();
+	font2.setFontHeightInPoints((short) 10);
+	font2.setFontName("Arial");
+	font2.setBold(true);
+
+	defaultStyleRight = workbook.createCellStyle();
+	defaultStyleRight.setFillForegroundColor(IndexedColors.WHITE1.getIndex());
+	defaultStyleRight.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	defaultStyleRight.setAlignment(HorizontalAlignment.RIGHT);
+	defaultStyleRight.setFont(font2);
+
+	redFont = workbook.createFont();
+	redFont.setFontHeightInPoints((short) 10);
+	redFont.setColor(HSSFColor.WHITE.index);
+	redFont.setFontName("Arial");
+	redFont.setBold(true);
+
+	redStyle = workbook.createCellStyle();
+	redStyle.setAlignment(HorizontalAlignment.RIGHT);
+	redStyle.setFillForegroundColor(IndexedColors.DARK_RED.getIndex());
+	redStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	redStyle.setFont(redFont);
+
+	greenFont = workbook.createFont();
+	greenFont.setFontHeightInPoints((short) 10);
+	greenFont.setColor(HSSFColor.BLACK.index);
+	greenFont.setFontName("Arial");
+	greenFont.setBold(true);
+
+	greenStyle = workbook.createCellStyle();
+	greenStyle.setAlignment(HorizontalAlignment.RIGHT);
+	greenStyle.setFillForegroundColor(IndexedColors.BRIGHT_GREEN.getIndex());
+	greenStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	greenStyle.setFont(greenFont);
     }
 
 }

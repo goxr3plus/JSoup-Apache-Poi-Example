@@ -1,4 +1,4 @@
-package main.java.com.goxr3plus.sonarparser.app;
+package main.java.com.goxr3plus.sonarparser.application;
 
 import java.time.LocalDate;
 import java.util.List;

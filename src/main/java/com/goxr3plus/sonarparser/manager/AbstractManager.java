@@ -1,4 +1,4 @@
-package main.java.com.goxr3plus.sonarparser.tools;
+package main.java.com.goxr3plus.sonarparser.manager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
