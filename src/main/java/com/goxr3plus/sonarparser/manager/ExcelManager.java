@@ -173,10 +173,8 @@ public class ExcelManager extends AbstractManager {
 
 	List<Project> results = new ArrayList<>();
 
-	try {
-
-	    // Creating a Workbook from an Excel file (.xls or .xlsx)
-	    Workbook workbook = WorkbookFactory.create(getSonarQubeReport(previousWeekDate));
+	// Creating a Workbook from an Excel file (.xls or .xlsx)
+	try (Workbook workbook = WorkbookFactory.create(getSonarQubeReport(previousWeekDate))) {
 
 	    // Getting the Sheet at index zero
 	    Sheet sheet = workbook.getSheetAt(0);
