@@ -94,7 +94,7 @@ public class ExcelManager extends AbstractManager {
 
 	}
 
-	Arrays.stream(StaticStaff.datatypes).forEach(datatype -> {
+	projects.forEach(thisWeekProject -> {
 	    rowNum[0]++;
 	    Row row = sheet.createRow(rowNum[0]);
 
@@ -105,25 +105,32 @@ public class ExcelManager extends AbstractManager {
 	    cell1.setCellStyle(defaultStyle);
 	    cell1.setCellValue(rowNum[0]);
 
-	    Arrays.stream(datatype).forEach(field -> {
-		Cell cell = row.createCell(colNum[0]++);
-		cell.setCellStyle(defaultStyle);
-		if (field instanceof String) {
-		    cell.setCellValue((String) field);
-		} else if (field instanceof Integer) {
-		    cell.setCellValue((Integer) field);
-		}
-	    });
+	    
+	    Cell cell = row.createCell(colNum[0]++);
+	    cell.setCellValue(thisWeekProject.getName());
+//	    Arrays.stream(datatype).forEach(field -> {
+//		Cell cell = row.createCell(colNum[0]++);
+//		cell.setCellStyle(defaultStyle);
+//		if (field instanceof String) {
+//		    cell.setCellValue((String) field);
+//		} else if (field instanceof Integer) {
+//		    cell.setCellValue((Integer) field);
+//		}
+//	    });
 
 	    // --------------- Add Coverage -----------------------//
 
 	    /* Add Previous Week Coverage */
-	    Project thisWeekProject = projects.get(rowNum[0] - 1);
+	    //Project thisWeekProject = projects.get(rowNum[0] - 1);
 	    Project previousWeekProject = previousWeekProjects.stream().filter(project -> project.getName().equals(thisWeekProject.getName())).findFirst()
 		    .get();
 	    Cell cell4 = row.createCell(3);
 	    cell4.setCellStyle(defaultStyleRight);
 	    cell4.setCellValue(previousWeekProject.getCoverage());
+	    System.err.println("----------------------------------------");
+	    System.err.println(rowNum[0] + " " + thisWeekProject.getName() + ":" + thisWeekProject.getCoverage());
+	    System.err.println(rowNum[0] + " " + previousWeekProject.getName() + ":" + previousWeekProject.getCoverage());
+	    System.err.println("----------------------------------------");
 
 	    /* Add Current Week Coverage */
 	    Cell cell5 = row.createCell(4);
