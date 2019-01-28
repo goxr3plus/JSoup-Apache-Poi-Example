@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -29,6 +30,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import main.java.com.goxr3plus.sonarparser.application.StaticStaff;
+import main.java.com.goxr3plus.sonarparser.comporator.NameComporator;
 import main.java.com.goxr3plus.sonarparser.model.Project;
 
 @Component
@@ -59,6 +61,8 @@ public class ExcelManager extends AbstractManager {
 
 	/* Read previous week report */
 	List<Project> previousWeekProjects = readPreviousWeekReport(previousWeekDate);
+	Collections.sort(previousWeekProjects,new NameComporator());
+	Collections.sort(projects,new NameComporator());
 
 	/* Create XSSFWorkbook & XSSFSheet */
 	XSSFWorkbook workbook = new XSSFWorkbook();
