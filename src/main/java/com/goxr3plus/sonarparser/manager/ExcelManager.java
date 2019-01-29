@@ -59,8 +59,8 @@ public class ExcelManager extends AbstractManager {
 
 	/* Read previous week report */
 	List<Project> previousWeekProjects = readPreviousWeekReport(previousWeekDate);
-	Collections.sort(previousWeekProjects, new NameComporator());
-	Collections.sort(projects, new NameComporator());
+	//Collections.sort(previousWeekProjects, new NameComporator());
+	//Collections.sort(projects, new NameComporator());
 
 	/* Create XSSFWorkbook & XSSFSheet */
 	XSSFWorkbook workbook = new XSSFWorkbook();
