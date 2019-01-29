@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -28,7 +27,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import main.java.com.goxr3plus.sonarparser.comporator.NameComporator;
 import main.java.com.goxr3plus.sonarparser.model.Project;
 
 @Component
@@ -45,6 +43,8 @@ public class ExcelManager extends AbstractManager {
     private CellStyle redStyle;
     private XSSFFont greenFont;
     private CellStyle greenStyle;
+    private XSSFFont orangeFont;
+    private CellStyle orangeStyle;
 
     /**
      * Get the given projects and create the Excel File
@@ -59,8 +59,8 @@ public class ExcelManager extends AbstractManager {
 
 	/* Read previous week report */
 	List<Project> previousWeekProjects = readPreviousWeekReport(previousWeekDate);
-	//Collections.sort(previousWeekProjects, new NameComporator());
-	//Collections.sort(projects, new NameComporator());
+	// Collections.sort(previousWeekProjects, new NameComporator())
+	// Collections.sort(projects, new NameComporator())
 
 	/* Create XSSFWorkbook & XSSFSheet */
 	XSSFWorkbook workbook = new XSSFWorkbook();
@@ -121,8 +121,12 @@ public class ExcelManager extends AbstractManager {
 	    Project previousWeekProject = previousWeekProjects.stream().filter(project -> project.getName().equals(thisWeekProject.getName())).findFirst()
 		    .get();
 	    Cell previousWeekCovCell = row.createCell(colNum[0]++);
-	    previousWeekCovCell.setCellStyle(defaultStyleRight);
+	    if (previousWeekProject.getCoverage().equals("No Coverage"))
+		previousWeekCovCell.setCellStyle(orangeStyle);
+	    else
+		previousWeekCovCell.setCellStyle(defaultStyleRight);
 	    previousWeekCovCell.setCellValue(previousWeekProject.getCoverage());
+
 	    System.err.println("----------------------------------------");
 	    System.err.println(rowNum[0] + " This Week => " + thisWeekProject.getName() + ":" + thisWeekProject.getCoverage());
 	    System.err.println(rowNum[0] + " Prev Week => " + previousWeekProject.getName() + ":" + previousWeekProject.getCoverage());
@@ -136,6 +140,8 @@ public class ExcelManager extends AbstractManager {
 		thisWeekCovCell.setCellStyle(redStyle);
 	    else if (coverageThisWeek > coveragePreviousWeek)
 		thisWeekCovCell.setCellStyle(greenStyle);
+	    else if (thisWeekProject.getCoverage().equals("No Coverage"))
+		thisWeekCovCell.setCellStyle(orangeStyle);
 	    else
 		thisWeekCovCell.setCellStyle(defaultStyleRight);
 	    thisWeekCovCell.setCellValue(thisWeekProject.getCoverage());
@@ -266,6 +272,18 @@ public class ExcelManager extends AbstractManager {
 	greenStyle.setFillForegroundColor(IndexedColors.BRIGHT_GREEN.getIndex());
 	greenStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	greenStyle.setFont(greenFont);
+
+	orangeFont = workbook.createFont();
+	orangeFont.setFontHeightInPoints((short) 10);
+	orangeFont.setColor(HSSFColor.WHITE.index);
+	orangeFont.setFontName("Arial");
+	orangeFont.setBold(true);
+
+	orangeStyle = workbook.createCellStyle();
+	orangeStyle.setAlignment(HorizontalAlignment.RIGHT);
+	orangeStyle.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
+	orangeStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	orangeStyle.setFont(orangeFont);
     }
 
 }
