@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,7 +28,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import main.java.com.goxr3plus.sonarparser.application.StaticStaff;
 import main.java.com.goxr3plus.sonarparser.comporator.NameComporator;
 import main.java.com.goxr3plus.sonarparser.model.Project;
 
@@ -61,8 +59,8 @@ public class ExcelManager extends AbstractManager {
 
 	/* Read previous week report */
 	List<Project> previousWeekProjects = readPreviousWeekReport(previousWeekDate);
-	Collections.sort(previousWeekProjects,new NameComporator());
-	Collections.sort(projects,new NameComporator());
+	Collections.sort(previousWeekProjects, new NameComporator());
+	Collections.sort(projects, new NameComporator());
 
 	/* Create XSSFWorkbook & XSSFSheet */
 	XSSFWorkbook workbook = new XSSFWorkbook();
@@ -109,36 +107,25 @@ public class ExcelManager extends AbstractManager {
 	    rowCountCell.setCellStyle(defaultStyle);
 	    rowCountCell.setCellValue(rowNum[0]);
 
-	    
 	    /* Application Category */
 	    Cell categoryCell = row.createCell(colNum[0]++);
 	    categoryCell.setCellValue(thisWeekProject.getCategory());
-	    
+
 	    /* Application Name */
 	    Cell nameCell = row.createCell(colNum[0]++);
 	    nameCell.setCellValue(thisWeekProject.getName());
-//	    Arrays.stream(datatype).forEach(field -> {
-//		Cell cell = row.createCell(colNum[0]++);
-//		cell.setCellStyle(defaultStyle);
-//		if (field instanceof String) {
-//		    cell.setCellValue((String) field);
-//		} else if (field instanceof Integer) {
-//		    cell.setCellValue((Integer) field);
-//		}
-//	    });
 
 	    // --------------- Add Coverage -----------------------//
 
 	    /* Add Previous Week Coverage */
-	    //Project thisWeekProject = projects.get(rowNum[0] - 1);
 	    Project previousWeekProject = previousWeekProjects.stream().filter(project -> project.getName().equals(thisWeekProject.getName())).findFirst()
 		    .get();
 	    Cell previousWeekCovCell = row.createCell(colNum[0]++);
 	    previousWeekCovCell.setCellStyle(defaultStyleRight);
 	    previousWeekCovCell.setCellValue(previousWeekProject.getCoverage());
 	    System.err.println("----------------------------------------");
-	    System.err.println(rowNum[0] + " " + thisWeekProject.getName() + ":" + thisWeekProject.getCoverage());
-	    System.err.println(rowNum[0] + " " + previousWeekProject.getName() + ":" + previousWeekProject.getCoverage());
+	    System.err.println(rowNum[0] + " " + thisWeekProject.getName() + ":" + thisWeekProject.getCategory());
+	   // System.err.println(rowNum[0] + " " + previousWeekProject.getName() + ":" + previousWeekProject.getCoverage());
 	    System.err.println("----------------------------------------");
 
 	    /* Add Current Week Coverage */

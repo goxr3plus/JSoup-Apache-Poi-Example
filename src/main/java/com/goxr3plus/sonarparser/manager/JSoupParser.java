@@ -81,17 +81,6 @@ public class JSoupParser extends AbstractManager {
 		counter = 0;
 	    }
 
-	    /* Set Project Category */
-	    projects.forEach(project -> {
-		String name = project.getName();
-		if (name.contains("UI"))
-		    project.setCategory("Users Operators");
-		else if (name.equalsIgnoreCase("Terminal Adaptor"))
-		    project.setCategory("Terminals & Users");
-		else
-		    project.setCategory("APIs");
-	    });
-
 	    /* Get only the projects we want */
 	    projects = projects.stream().filter(project -> StaticStaff.ignoreList.contains(project.getName()))
 		    .peek(project -> project.setVersion(project.getVersion().replaceAll("\\Q.\\E|LVS_|-|not provided|SNAPSHOT", "").trim()))
@@ -111,6 +100,17 @@ public class JSoupParser extends AbstractManager {
 		    projects.add(new Project(projectName, "not provided", "No Coverage", ""));
 		}
 	    }
+
+	    /* Set Project Category */
+	    projects.forEach(project -> {
+		String name = project.getName();
+		if (name.contains("UI"))
+		    project.setCategory("Users Operators");
+		else if (name.equalsIgnoreCase("Terminal Adaptor"))
+		    project.setCategory("Terminals & Users");
+		else
+		    project.setCategory("APIs");
+	    });
 
 	    /* Print to console for debugging purposes */
 	    StaticStaff.printToConsole(projects);
