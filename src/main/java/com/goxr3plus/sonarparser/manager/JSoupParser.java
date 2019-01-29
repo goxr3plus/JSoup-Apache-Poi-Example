@@ -19,7 +19,6 @@ import com.google.common.collect.Multimaps;
 import main.java.com.goxr3plus.sonarparser.application.StaticStaff;
 import main.java.com.goxr3plus.sonarparser.model.Project;
 
-
 @Component
 public class JSoupParser extends AbstractManager {
 
@@ -81,6 +80,17 @@ public class JSoupParser extends AbstractManager {
 		projects.add(project);
 		counter = 0;
 	    }
+
+	    /* Set Project Category */
+	    projects.forEach(project -> {
+		String name = project.getName();
+		if (name.contains("UI"))
+		    project.setCategory("Users Operators");
+		else if (name.equalsIgnoreCase("Terminal Adaptor"))
+		    project.setCategory("Terminals & Users");
+		else
+		    project.setCategory("APIs");
+	    });
 
 	    /* Get only the projects we want */
 	    projects = projects.stream().filter(project -> StaticStaff.ignoreList.contains(project.getName()))

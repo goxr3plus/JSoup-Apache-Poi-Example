@@ -11,6 +11,7 @@ public class Project implements Comparable<Project> {
     private String version;
     private String coverage;
     private String lastAnalysis;
+    private String category;
 
     public Project() {
     }
@@ -105,6 +106,14 @@ public class Project implements Comparable<Project> {
     @Override
     public int compareTo(final Project project2) {
 	return project2.getLastAnalysisLocalDate().compareTo(getLastAnalysisLocalDate());
+    }
+
+    public String getCategory() {
+	return category;
+    }
+
+    public void setCategory(String category) {
+	this.category = category;
     }
 
 }

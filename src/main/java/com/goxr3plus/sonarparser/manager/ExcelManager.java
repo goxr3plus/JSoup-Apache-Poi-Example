@@ -105,13 +105,18 @@ public class ExcelManager extends AbstractManager {
 	    int[] colNum = { 0 };
 
 	    /* Create Row Count */
-	    Cell cell1 = row.createCell(colNum[0]++);
-	    cell1.setCellStyle(defaultStyle);
-	    cell1.setCellValue(rowNum[0]);
+	    Cell rowCountCell = row.createCell(colNum[0]++);
+	    rowCountCell.setCellStyle(defaultStyle);
+	    rowCountCell.setCellValue(rowNum[0]);
 
 	    
-	    Cell cell = row.createCell(colNum[0]++);
-	    cell.setCellValue(thisWeekProject.getName());
+	    /* Application Category */
+	    Cell categoryCell = row.createCell(colNum[0]++);
+	    categoryCell.setCellValue(thisWeekProject.getCategory());
+	    
+	    /* Application Name */
+	    Cell nameCell = row.createCell(colNum[0]++);
+	    nameCell.setCellValue(thisWeekProject.getName());
 //	    Arrays.stream(datatype).forEach(field -> {
 //		Cell cell = row.createCell(colNum[0]++);
 //		cell.setCellStyle(defaultStyle);
@@ -128,25 +133,25 @@ public class ExcelManager extends AbstractManager {
 	    //Project thisWeekProject = projects.get(rowNum[0] - 1);
 	    Project previousWeekProject = previousWeekProjects.stream().filter(project -> project.getName().equals(thisWeekProject.getName())).findFirst()
 		    .get();
-	    Cell cell4 = row.createCell(3);
-	    cell4.setCellStyle(defaultStyleRight);
-	    cell4.setCellValue(previousWeekProject.getCoverage());
+	    Cell previousWeekCovCell = row.createCell(colNum[0]++);
+	    previousWeekCovCell.setCellStyle(defaultStyleRight);
+	    previousWeekCovCell.setCellValue(previousWeekProject.getCoverage());
 	    System.err.println("----------------------------------------");
 	    System.err.println(rowNum[0] + " " + thisWeekProject.getName() + ":" + thisWeekProject.getCoverage());
 	    System.err.println(rowNum[0] + " " + previousWeekProject.getName() + ":" + previousWeekProject.getCoverage());
 	    System.err.println("----------------------------------------");
 
 	    /* Add Current Week Coverage */
-	    Cell cell5 = row.createCell(4);
+	    Cell thisWeekCovCell = row.createCell(colNum[0]++);
 	    Double coveragePreviousWeek = previousWeekProject.getCoverageAsDouble();
 	    Double coverageThisWeek = thisWeekProject.getCoverageAsDouble();
 	    if (coveragePreviousWeek > coverageThisWeek)
-		cell5.setCellStyle(redStyle);
+		thisWeekCovCell.setCellStyle(redStyle);
 	    else if (coverageThisWeek > coveragePreviousWeek)
-		cell5.setCellStyle(greenStyle);
+		thisWeekCovCell.setCellStyle(greenStyle);
 	    else
-		cell5.setCellStyle(defaultStyleRight);
-	    cell5.setCellValue(thisWeekProject.getCoverage());
+		thisWeekCovCell.setCellStyle(defaultStyleRight);
+	    thisWeekCovCell.setCellValue(thisWeekProject.getCoverage());
 	});
 
 	// Auto size column widths
