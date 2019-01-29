@@ -45,6 +45,7 @@ public class ExcelManager extends AbstractManager {
     private CellStyle greenStyle;
     private XSSFFont orangeFont;
     private CellStyle orangeStyle;
+    private CellStyle blueStyle;
 
     /**
      * Get the given projects and create the Excel File
@@ -76,13 +77,11 @@ public class ExcelManager extends AbstractManager {
 
 	/* Create row 0-Descriptions */
 	Row row0 = sheet.createRow(rowNum[0]);
-	CellStyle cellStyle0 = row0.getSheet().getWorkbook().createCellStyle();
-	cellStyle0.setAlignment(HorizontalAlignment.CENTER);
 	for (int i = 0; i <= 4; i++) {
 
 	    /* Create Row Count */
 	    Cell cell = row0.createCell(i);
-	    cell.setCellStyle(cellStyle0);
+	    cell.setCellStyle(blueStyle);
 	    if (i == 0)
 		cell.setCellValue("NO");
 	    else if (i == 1)
@@ -90,6 +89,7 @@ public class ExcelManager extends AbstractManager {
 	    else if (i == 2)
 		cell.setCellValue("Component");
 	    else if (i == 3)
+		
 		cell.setCellValue("Last Week");
 	    else if (i == 4)
 		cell.setCellValue("This week");
@@ -284,6 +284,13 @@ public class ExcelManager extends AbstractManager {
 	orangeStyle.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
 	orangeStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	orangeStyle.setFont(orangeFont);
+	
+
+	blueStyle = workbook.createCellStyle();
+	blueStyle.setAlignment(HorizontalAlignment.CENTER);
+	blueStyle.setFillForegroundColor(IndexedColors.SKY_BLUE.getIndex());
+	blueStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	blueStyle.setFont(orangeFont);
     }
 
 }
