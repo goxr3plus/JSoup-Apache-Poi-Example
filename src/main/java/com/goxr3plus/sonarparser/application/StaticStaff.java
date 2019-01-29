@@ -90,7 +90,7 @@ public class StaticStaff {
 		{ "Users Operators ", "IGMS UI                " },
 		{ "Users Operators ", "ATS UI                 " },
 		{ "Users Operators ", "Cluster Management UI  " },
-		{ "Users Operators ", "Terminal Transactions U" },
+		{ "Users Operators ", "Terminal Transactions UI" },
 		{ "Users Operators ", "Fraud UI               " },
 		{ "Users Operators ", "Lottery Risk Management" },
 		{ "Terminals & User", "Terminal Adaptor       " },
