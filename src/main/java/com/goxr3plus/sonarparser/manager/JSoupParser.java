@@ -50,7 +50,7 @@ public class JSoupParser extends AbstractManager {
 		for (Element el : element.getElementsByTag("td")) {
 
 		    // Replace unwanted words from the final text
-		    String text = el.text().replaceAll("master|develop|L10", "").replace("Java", "J").trim();
+		    String text = el.text().replaceAll("master|develop|L10|NG", "").replace("Java", "J").trim();
 
 		    // Skip first column
 		    if (skipColumns < 1)
@@ -69,7 +69,6 @@ public class JSoupParser extends AbstractManager {
 			    break;
 			case 4:
 			    project.setVersion(text);
-
 			    break;
 			default:
 			}
@@ -81,8 +80,14 @@ public class JSoupParser extends AbstractManager {
 		counter = 0;
 	    }
 
+	    /* Fix problems */
+	    projects.stream().filter(project -> project.getName().equals("Lottery Application")).findFirst()
+		    .ifPresent(project -> project.setName("Lottery UI"));
+	    projects.stream().filter(project -> project.getName().equals("Cluster Management")).findFirst()
+	    .ifPresent(project -> project.setName("Cluster Management UI"));
+
 	    /* Get only the projects we want */
-	    projects = projects.stream().filter(project -> StaticStaff.ignoreList.contains(project.getName()))
+	    projects = projects.stream().filter(project -> StaticStaff.includedProjects.contains(project.getName()))
 		    .peek(project -> project.setVersion(project.getVersion().replaceAll("\\Q.\\E|LVS_|-|not provided|SNAPSHOT", "").trim()))
 		    .collect(Collectors.toList());
 
@@ -95,7 +100,7 @@ public class JSoupParser extends AbstractManager {
 
 	    /* Add projects that never had coverage */
 	    List<String> projectNames = projects.stream().map(Project::getName).collect(Collectors.toList());
-	    for (String projectName : StaticStaff.ignoreList) {
+	    for (String projectName : StaticStaff.includedProjects) {
 		if (!projectNames.contains(projectName)) {
 		    projects.add(new Project(projectName, "not provided", "No Coverage", ""));
 		}

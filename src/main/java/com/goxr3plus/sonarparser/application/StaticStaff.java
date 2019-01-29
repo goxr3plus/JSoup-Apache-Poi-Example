@@ -34,7 +34,7 @@ public class StaticStaff {
 	tt.printTable();
     }
 
-    public static final List<String> ignoreList = Arrays.asList(
+    public static final List<String> includedProjects = Arrays.asList(
 	    "Auditing",
 	    "Lottery Validations",
 	    "Winning Certificates UI",

@@ -43,6 +43,8 @@ public class Project implements Comparable<Project> {
     public String getCoverage() {
 	if (coverage.contains("No Coverage"))
 	    return coverage;
+//	else if (coverage == null || coverage.isEmpty())
+//	    return "No Coverage";
 	else {
 	    NumberFormat formatter = new DecimalFormat("#0.00");
 	    return formatter.format(getCoverageAsDouble()).concat("%");
@@ -112,7 +114,7 @@ public class Project implements Comparable<Project> {
 	return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(final String category) {
 	this.category = category;
     }
 

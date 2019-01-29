@@ -124,8 +124,8 @@ public class ExcelManager extends AbstractManager {
 	    previousWeekCovCell.setCellStyle(defaultStyleRight);
 	    previousWeekCovCell.setCellValue(previousWeekProject.getCoverage());
 	    System.err.println("----------------------------------------");
-	    System.err.println(rowNum[0] + " " + thisWeekProject.getName() + ":" + thisWeekProject.getCategory());
-	   // System.err.println(rowNum[0] + " " + previousWeekProject.getName() + ":" + previousWeekProject.getCoverage());
+	    System.err.println(rowNum[0] + " This Week => " + thisWeekProject.getName() + ":" + thisWeekProject.getCoverage());
+	    System.err.println(rowNum[0] + " Prev Week => " + previousWeekProject.getName() + ":" + previousWeekProject.getCoverage());
 	    System.err.println("----------------------------------------");
 
 	    /* Add Current Week Coverage */
