@@ -223,7 +223,7 @@ public class ExcelManager extends AbstractManager {
 
 	    // Closing the workbook
 	    workbook.close();
-	} catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
+	} catch (EncryptedDocumentException | IOException e) {
 	    e.printStackTrace();
 	}
 
@@ -254,7 +254,7 @@ public class ExcelManager extends AbstractManager {
 
 	redFont = workbook.createFont();
 	redFont.setFontHeightInPoints((short) 10);
-	redFont.setColor(HSSFColor.WHITE.index);
+	redFont.setColor(HSSFColor.HSSFColorPredefined.WHITE.getIndex());
 	redFont.setFontName("Arial");
 	redFont.setBold(true);
 
@@ -266,7 +266,7 @@ public class ExcelManager extends AbstractManager {
 
 	greenFont = workbook.createFont();
 	greenFont.setFontHeightInPoints((short) 10);
-	greenFont.setColor(HSSFColor.BLACK.index);
+	greenFont.setColor(HSSFColor.HSSFColorPredefined.BLACK.getIndex());
 	greenFont.setFontName("Arial");
 	greenFont.setBold(true);
 
@@ -278,7 +278,7 @@ public class ExcelManager extends AbstractManager {
 
 	orangeFont = workbook.createFont();
 	orangeFont.setFontHeightInPoints((short) 10);
-	orangeFont.setColor(HSSFColor.WHITE.index);
+	orangeFont.setColor(HSSFColor.HSSFColorPredefined.WHITE.getIndex());
 	orangeFont.setFontName("Arial");
 	orangeFont.setBold(true);
 
