@@ -35,6 +35,9 @@ public class ExcelManager extends AbstractManager {
     @Value("${files.basePath}")
     private String basePath;
 
+    @Value("${files.baseHistoryPath}")
+    private String baseHistoryPath;
+
     private XSSFFont font;
     private CellStyle defaultStyle;
     private XSSFFont font2;
@@ -89,7 +92,7 @@ public class ExcelManager extends AbstractManager {
 	    else if (i == 2)
 		cell.setCellValue("Component");
 	    else if (i == 3)
-		
+
 		cell.setCellValue("Last Week");
 	    else if (i == 4)
 		cell.setCellValue("This week");
@@ -155,8 +158,8 @@ public class ExcelManager extends AbstractManager {
 	sheet.setColumnWidth(4, 3500);
 
 	/* Create excel file */
-	File file = getSonarQubeReport(LocalDate.now());
-	log.error("File {} exists ... deleting = {}", file.getName(), FileUtils.deleteQuietly(file));
+	File file = getSonarQubeReport(basePath, LocalDate.now());
+	log.error("File {} exists {}... deleting = {}", file.getName(), file.exists(), FileUtils.deleteQuietly(file));
 
 	/* Write excel file */
 	try (FileOutputStream outputStream = new FileOutputStream(file.getAbsolutePath())) {
@@ -168,8 +171,8 @@ public class ExcelManager extends AbstractManager {
 	log.info("Exited exportExcel ");
     }
 
-    private File getSonarQubeReport(final LocalDate localDate) {
-	return new File(basePath + "SonarQube_" + localDate + ".xlsx");
+    private File getSonarQubeReport(final String parentDirectory, final LocalDate localDate) {
+	return new File(parentDirectory + "SonarQube_" + localDate + ".xlsx");
     }
 
     /**
@@ -183,7 +186,7 @@ public class ExcelManager extends AbstractManager {
 	List<Project> results = new ArrayList<>();
 
 	// Creating a Workbook from an Excel file (.xls or .xlsx)
-	try (Workbook workbook = WorkbookFactory.create(getSonarQubeReport(previousWeekDate))) {
+	try (Workbook workbook = WorkbookFactory.create(getSonarQubeReport(baseHistoryPath, previousWeekDate))) {
 
 	    // Getting the Sheet at index zero
 	    Sheet sheet = workbook.getSheetAt(0);
@@ -284,7 +287,6 @@ public class ExcelManager extends AbstractManager {
 	orangeStyle.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
 	orangeStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	orangeStyle.setFont(orangeFont);
-	
 
 	blueStyle = workbook.createCellStyle();
 	blueStyle.setAlignment(HorizontalAlignment.CENTER);
