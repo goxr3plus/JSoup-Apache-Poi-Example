@@ -47,7 +47,7 @@ public class SwaggerResource {//extends ApiListingResource {
 	public void init() {
 		BeanConfig beanConfig = new BeanConfig();
 		beanConfig.setSchemes(new String[] { "http", "https" });
-		beanConfig.setResourcePackage("main.java.com.goxr3plus.sonarparser");
+		beanConfig.setResourcePackage("com.goxr3plus.sonarparser");
 		beanConfig.setScan(true);
 
 		// TODO

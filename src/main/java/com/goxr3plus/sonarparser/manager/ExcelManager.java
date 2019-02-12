@@ -10,7 +10,6 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -21,6 +20,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -49,6 +49,7 @@ public class ExcelManager extends AbstractManager {
     private XSSFFont orangeFont;
     private CellStyle orangeStyle;
     private CellStyle blueStyle;
+    private XSSFCellStyle blueStyleLeft;
 
     /**
      * Get the given projects and create the Excel File
@@ -97,6 +98,10 @@ public class ExcelManager extends AbstractManager {
 	    else if (i == 4)
 		cell.setCellValue("This week");
 
+	    if(i<=2)
+		 cell.setCellStyle(blueStyleLeft);
+	    else
+		 cell.setCellStyle(blueStyle);
 	}
 
 	projects.forEach(thisWeekProject -> {
@@ -293,6 +298,12 @@ public class ExcelManager extends AbstractManager {
 	blueStyle.setFillForegroundColor(IndexedColors.SKY_BLUE.getIndex());
 	blueStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	blueStyle.setFont(orangeFont);
+	
+	blueStyleLeft = workbook.createCellStyle();
+	blueStyleLeft.setAlignment(HorizontalAlignment.LEFT);
+	blueStyleLeft.setFillForegroundColor(IndexedColors.SKY_BLUE.getIndex());
+	blueStyleLeft.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	blueStyleLeft.setFont(orangeFont);
     }
 
 }
