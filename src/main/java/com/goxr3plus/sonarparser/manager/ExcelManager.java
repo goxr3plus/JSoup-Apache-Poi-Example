@@ -3,11 +3,14 @@ package main.java.com.goxr3plus.sonarparser.manager;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -58,12 +61,12 @@ public class ExcelManager extends AbstractManager {
      * @param previousWeekDate
      * @throws IOException
      */
-    public void exportExcel(final List<Project> projects, final LocalDate previousWeekDate) throws IOException {
+    public void exportExcel(final List<Project> projects) throws IOException {
 
 	log.info("Entered exportExcel ");
 
 	/* Read previous week report */
-	List<Project> previousWeekProjects = readPreviousWeekReport(previousWeekDate);
+	List<Project> previousWeekProjects = readPreviousWeekReport(this.findPreviousWeekDate());
 	// Collections.sort(previousWeekProjects, new NameComporator())
 	// Collections.sort(projects, new NameComporator())
 
@@ -98,10 +101,10 @@ public class ExcelManager extends AbstractManager {
 	    else if (i == 4)
 		cell.setCellValue("This week");
 
-	    if(i<=2)
-		 cell.setCellStyle(blueStyleLeft);
+	    if (i <= 2)
+		cell.setCellStyle(blueStyleLeft);
 	    else
-		 cell.setCellStyle(blueStyle);
+		cell.setCellStyle(blueStyle);
 	}
 
 	projects.forEach(thisWeekProject -> {
@@ -298,12 +301,34 @@ public class ExcelManager extends AbstractManager {
 	blueStyle.setFillForegroundColor(IndexedColors.SKY_BLUE.getIndex());
 	blueStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	blueStyle.setFont(orangeFont);
-	
+
 	blueStyleLeft = workbook.createCellStyle();
 	blueStyleLeft.setAlignment(HorizontalAlignment.LEFT);
 	blueStyleLeft.setFillForegroundColor(IndexedColors.SKY_BLUE.getIndex());
 	blueStyleLeft.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	blueStyleLeft.setFont(orangeFont);
+    }
+
+    /**
+     * Fetches all the previous weeks files , gets the most recent week and returns
+     * the date of the files
+     * 
+     * @return
+     * @throws IOException
+     */
+    private LocalDate findPreviousWeekDate() throws IOException {
+
+	/* Iterate historyFolder */
+	return Files.list(Paths.get(baseHistoryPath)).map(filePath -> {
+	    String fileName = FilenameUtils.getBaseName(filePath.getFileName().toString()).replace("SonarQube_", "");
+	    String[] splitter = fileName.split("-");
+	    final int year = Integer.parseInt(splitter[0]);
+	    final int month = Integer.parseInt(splitter[1]);
+	    final int dayOfMonth = Integer.parseInt(splitter[2]);
+
+	    return LocalDate.of(year, month, dayOfMonth);
+	}).max((final LocalDate d1, final LocalDate d2) -> d1.compareTo(d2)).get();
+
     }
 
 }

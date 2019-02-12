@@ -33,7 +33,7 @@ public class SonarParserApplication implements CommandLineRunner {
 
 	/* Export to Excel File */
 	if (projects != null)
-	    excelManager.exportExcel(projects, LocalDate.of(2019, 02, 05));
+	    excelManager.exportExcel(projects);
 
 	//System.exit(0)
     }
