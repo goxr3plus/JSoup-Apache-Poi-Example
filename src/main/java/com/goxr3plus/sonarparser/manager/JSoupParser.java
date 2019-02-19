@@ -84,18 +84,24 @@ public class JSoupParser extends AbstractManager {
 	    projects.stream().filter(project -> project.getName().equals("Lottery Application")).findFirst()
 		    .ifPresent(project -> project.setName("Lottery UI"));
 	    projects.stream().filter(project -> project.getName().equals("Cluster Management")).findFirst()
-	    .ifPresent(project -> project.setName("Cluster Management UI"));
+		    .ifPresent(project -> project.setName("Cluster Management UI"));
 
 	    /* Get only the projects we want */
-	    projects = projects.stream().filter(project -> StaticStaff.includedProjects.contains(project.getName()))
-		    .peek(project -> project.setVersion(project.getVersion().replaceAll("\\Q.\\E|LVS_|-|not provided|SNAPSHOT", "").trim()))
+	    projects = projects.stream()
+		    .filter(project -> StaticStaff.includedProjects.contains(project.getName()))
+		    .map(project -> {
+		           project.setVersion(project.getVersion().replaceAll("\\Q.\\E|LVS_|-|not provided|SNAPSHOT", "").trim());
+		           return project;})
 		    .collect(Collectors.toList());
 
 	    /* Create a multimap because of multiple projects with same name */
 	    final ImmutableListMultimap<String, Project> multiMap = Multimaps.index(projects, Project::getName);
 	    projects = multiMap.keySet().stream().map(projectName -> {
 		List<Project> sortedProjects = multiMap.get(projectName).stream().sorted().collect(Collectors.toList());
-		return sortedProjects.get(0);
+		if (projectName.equalsIgnoreCase("Lottery Validations")) //Due to 2 different versions
+		    return sortedProjects.get(1);
+		else
+		    return sortedProjects.get(0);
 	    }).collect(Collectors.toList());
 
 	    /* Add projects that never had coverage */

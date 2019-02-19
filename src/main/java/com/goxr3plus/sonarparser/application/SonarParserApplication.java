@@ -1,6 +1,5 @@
 package main.java.com.goxr3plus.sonarparser.application;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;

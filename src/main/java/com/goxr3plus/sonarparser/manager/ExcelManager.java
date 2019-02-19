@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,14 +60,22 @@ public class ExcelManager extends AbstractManager {
      * 
      * @param projects
      * @param previousWeekDate
-     * @throws IOException
+     * @throws Exception
      */
-    public void exportExcel(final List<Project> projects) throws IOException {
+    public void exportExcel(final List<Project> projects) throws Exception {
 
 	log.info("Entered exportExcel ");
 
+	/* Check if previous week report is older than one week */
+	LocalDate previousReportDate = findPreviousWeekDate();
+	LocalDate now = LocalDate.now();
+	int daysOfDifference = (now.getDayOfYear() - previousReportDate.getDayOfYear());
+	System.err.println("Days of difference : " + daysOfDifference);
+	if (daysOfDifference > 7)
+	    throw new Exception(baseHistoryPath + " doesn't contain the previous week report.");
+
 	/* Read previous week report */
-	List<Project> previousWeekProjects = readPreviousWeekReport(this.findPreviousWeekDate());
+	List<Project> previousWeekProjects = readPreviousWeekReport(previousReportDate);
 	// Collections.sort(previousWeekProjects, new NameComporator())
 	// Collections.sort(projects, new NameComporator())
 
@@ -175,6 +184,9 @@ public class ExcelManager extends AbstractManager {
 	} catch (Exception ex) {
 	    ex.printStackTrace();
 	}
+
+	/* Copy the file to the history folder */
+	Files.move(Paths.get(file.getAbsolutePath()), Paths.get(baseHistoryPath, file.getName()), StandardCopyOption.REPLACE_EXISTING);
 
 	log.info("Exited exportExcel ");
     }
