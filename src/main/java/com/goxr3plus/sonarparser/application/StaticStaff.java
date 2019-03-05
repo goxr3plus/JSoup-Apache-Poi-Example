@@ -8,31 +8,31 @@ import main.java.com.goxr3plus.sonarparser.model.Project;
 
 public class StaticStaff {
     
-    public static void printToConsole(final List<Project> projects) {
-	
-	/* Prepare the printing table */
-	String[] columnNames = { "Counting", "Name", "Coverage", "Last Updated", "Version" };
-	int totalRows = projects.size();
-	String[][] items = new String[totalRows][columnNames.length];
-	int row = 0;
-	int counter = 0;
-	
-	//Create an array to print the results as a table
-	for (Project project : projects) {
-	    items[row][counter] = String.valueOf(row);
-	    items[row][++counter] = project.getName();
-	    items[row][++counter] = project.getCoverage();
-	    items[row][++counter] = project.getLastAnalysis();
-	    items[row][++counter] = project.getVersion();
+	public static void printToConsole(final List<Project> projects) {
 
-	    row++;
-	    counter = 0;
+		/* Prepare the printing table */
+		String[] columnNames = { "Counting", "Name", "Coverage", "Last Updated", "Version" };
+		int totalRows = projects.size();
+		String[][] items = new String[totalRows][columnNames.length];
+		int row = 0;
+		int counter = 0;
+
+		// Create an array to print the results as a table
+		for (Project project : projects) {
+			items[row][counter] = String.valueOf(row);
+			items[row][++counter] = project.getName();
+			items[row][++counter] = project.getCoverage();
+			items[row][++counter] = project.getLastAnalysis();
+			items[row][++counter] = project.getVersion();
+
+			row++;
+			counter = 0;
+		}
+
+		// Print the results as a table
+		TextTable tt = new TextTable(columnNames, items);
+		tt.printTable();
 	}
-
-	// Print the results as a table
-	TextTable tt = new TextTable(columnNames, items);
-	tt.printTable();
-    }
 
     public static final List<String> includedProjects = Arrays.asList(
 	    "Auditing",
