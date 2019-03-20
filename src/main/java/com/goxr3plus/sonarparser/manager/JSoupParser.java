@@ -31,7 +31,6 @@ public class JSoupParser extends AbstractManager {
 	/**
 	 * Parse the html table
 	 * 
-	 * @param table
 	 * @throws IOException
 	 */
 	public List<Project> readHTML() throws IOException {

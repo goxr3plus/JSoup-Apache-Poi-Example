@@ -45,6 +45,9 @@ public class ExcelManager extends AbstractManager {
 	@Value("${files.printToConsole}")
 	private boolean printToConsole;
 
+	@Value("${maximumWeekDays}")
+	private int maximumWeekDays;
+
 	private XSSFFont font;
 	private CellStyle defaultStyle;
 	private XSSFFont font2;
@@ -62,7 +65,6 @@ public class ExcelManager extends AbstractManager {
 	 * Get the given projects and create the Excel File
 	 * 
 	 * @param projects
-	 * @param previousWeekDate
 	 * @throws Exception
 	 */
 	public void exportExcel(final List<Project> projects) throws Exception {
@@ -74,7 +76,7 @@ public class ExcelManager extends AbstractManager {
 		LocalDate now = LocalDate.now();
 		int daysOfDifference = (now.getDayOfYear() - previousReportDate.getDayOfYear());
 		System.err.println("Days of difference : " + daysOfDifference);
-		if (daysOfDifference > 7)
+		if (daysOfDifference > maximumWeekDays)
 			throw new Exception(baseHistoryPath + " doesn't contain the previous week report.");
 
 		/* Read previous week report */
